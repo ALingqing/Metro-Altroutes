@@ -36,13 +36,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Metro API (本地JAR依赖，需手动安装到本地仓库或使用system scope) -->
+        <!-- Metro API (本地JAR依赖，CI 中会先 install 到本地仓库) -->
         <dependency>
             <groupId>org.cubexmc</groupId>
             <artifactId>metro</artifactId>
             <version>1.1.7</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/metro.jar</systemPath>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
