@@ -526,11 +526,25 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
         sendMsg(sender, "&c未知子命令。可用: setstatus, setsuspensionmsg, setaltroute, clearaltroute, status, info, list");
     }
 
+    /**
+     * 获取状态显示文本（包含彩色图标和状态标签）
+     */
     private String getStatusDisplay(LineStatus status) {
         return switch (status) {
-            case NORMAL -> "&a● 正常运营";
-            case SUSPENDED -> "&c● 暂停运营";
-            case MAINTENANCE -> "&e● 维护中";
+            case NORMAL -> "&a● 正常运营 &8[&aNORMAL&8]";
+            case SUSPENDED -> "&c● 暂停运营 &8[&cSUSPENDED&8]";
+            case MAINTENANCE -> "&e● 维护中 &8[&eMAINTENANCE&8]";
+        };
+    }
+
+    /**
+     * 仅获取状态标签（用于紧凑显示）
+     */
+    private String getStatusTag(LineStatus status) {
+        return switch (status) {
+            case NORMAL -> "&a[NORMAL]";
+            case SUSPENDED -> "&c[SUSPENDED]";
+            case MAINTENANCE -> "&e[MAINTENANCE]";
         };
     }
 

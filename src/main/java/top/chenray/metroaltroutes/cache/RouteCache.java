@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
  * <p>缓存线路状态、替代路线映射、停运公告等信息，
  * 避免频繁调用 MetroAPI 的快照查询，降低主线程开销。</p>
  *
- * <p>缓存每 30 秒异步刷新一次，换线时自动失效对应条目。</p>
+ * <p>启动时加载一次，查询时自动按需刷新（TTL 30秒），
+ * 也可通过 /m reload 手动触发刷新。</p>
  */
 public final class RouteCache {
 
@@ -48,33 +49,13 @@ public final class RouteCache {
     // ==================== 缓存管理 ====================
 
     /**
-     * 启动定时缓存刷新任务（每 30 秒异步执行）
+     * 启动初始缓存加载（仅加载一次，不设定时后台刷新）
      */
     public void startCacheRefreshTask() {
         plugin.runTaskAsync(() -> {
             refreshAll();
             lastRefresh = System.currentTimeMillis();
         });
-
-        // 每 30 秒异步刷新
-        if (api.isFoliaRuntime()) {
-            plugin.getServer().getGlobalRegionScheduler()
-                    .runAtFixedRate(plugin, task -> {
-                        if (!running) {
-                            task.cancel();
-                            return;
-                        }
-                        refreshAll();
-                        lastRefresh = System.currentTimeMillis();
-                    }, 600, 600); // 30秒 = 600 tick
-        } else {
-            plugin.getServer().getScheduler()
-                    .runTaskTimerAsynchronously(plugin, () -> {
-                        if (!running) return;
-                        refreshAll();
-                        lastRefresh = System.currentTimeMillis();
-                    }, 600L, 600L); // 30秒
-        }
     }
 
     /**
@@ -91,7 +72,7 @@ public final class RouteCache {
             // 重建替代路线索引
             rebuildAltRouteIndex(snapshots);
 
-            plugin.log("缓存刷新完成，共 " + snapshots.size() + " 条线路。");
+            plugin.getLogger().fine("缓存刷新完成，共 " + snapshots.size() + " 条线路。");
         } catch (Exception e) {
             plugin.getLogger().warning("缓存刷新异常: " + e.getMessage());
         }

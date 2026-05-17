@@ -22,7 +22,7 @@ This plugin is an addon for [Metro](https://github.com/CubeX-MC/Metro), a high-p
 | 🚫 **Ride Blocking** | Automatically block boarding on suspended lines |
 | 📢 **Suspension Message** | Show custom messages when boarding is blocked |
 | 🔀 **Alternate Routes** | Recommend alternate lines automatically |
-| ⚡ **Cache Optimisation** | 30s async cache, reduced main-thread overhead |
+| ⚡ **Cache Optimisation** | Loads on startup, refreshes on demand (TTL 30s), reduced main-thread overhead |
 | 🧵 **Folia Compatible** | Auto-detects Paper or Folia runtime |
 
 ---
