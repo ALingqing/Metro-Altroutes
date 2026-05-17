@@ -20,7 +20,7 @@
 - **状态显示优化**：线路列表和状态查询现在同时显示状态名称标签（如 `[NORMAL]`），便于机器解析和国际化
 
 #### 修复
-- 无
+- 修复 `setstatus` 调用 Metro 内部广播消息中 `{status}` 占位符未替换的问题
 
 ---
 
@@ -36,4 +36,4 @@
 - **Status display enhancement**: Line list and status queries now show a status name tag (e.g. `[NORMAL]`) alongside the coloured display, aiding machine parsing and internationalisation
 
 #### Fixed
-- None
+- Fixed `{status}` placeholder not being substituted in Metro's internal broadcast when using `setstatus`

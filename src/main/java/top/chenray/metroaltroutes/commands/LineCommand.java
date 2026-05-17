@@ -127,9 +127,18 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        boolean success = api.setLineStatus(lineId, status);
+        try {
+            Line line = api.getLineManager().getLine(lineId);
+            if (line == null) {
+                sendMsg(sender, "&c无法获取线路内部对象。");
+                return true;
+            }
 
-        if (success) {
+            // 直接设置 Line 对象的状态，绕过 api.setLineStatus()
+            // 避免 Metro 内部广播消息中 {status} 占位符未替换的 bug
+            line.setLineStatus(status);
+            api.getLineManager().saveConfig();
+
             cache.invalidate(lineId); // 使缓存失效，下次查询重新加载
 
             String displayStatus = switch (status) {
@@ -147,8 +156,9 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
             }
 
             plugin.log(sender.getName() + " 将线路 " + lineId + " 状态设置为 " + status);
-        } else {
-            sendMsg(sender, "&c设置线路状态失败，请检查控制台日志。");
+        } catch (Exception e) {
+            sendMsg(sender, "&c设置线路状态时出错: " + e.getMessage());
+            plugin.getLogger().warning("设置线路状态异常: " + e.getMessage());
         }
 
         return true;
