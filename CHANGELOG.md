@@ -2,6 +2,12 @@
 
 ## [1.1.0] - 2026-05-17
 
+### 🇬🇧 English
+
+#### Improved
+- **Upgraded Actions to v6/v5 with Node.js 24 support**
+- **Fixed CI dependency graph 403 error**
+
 ### 🇨🇳 中文
 
 #### 新增
