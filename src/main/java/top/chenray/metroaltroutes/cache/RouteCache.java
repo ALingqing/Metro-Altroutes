@@ -71,8 +71,6 @@ public final class RouteCache {
 
             // 重建替代路线索引
             rebuildAltRouteIndex(snapshots);
-
-            plugin.getLogger().fine("缓存刷新完成，共 " + snapshots.size() + " 条线路。");
         } catch (Exception e) {
             plugin.getLogger().warning("缓存刷新异常: " + e.getMessage());
         }
