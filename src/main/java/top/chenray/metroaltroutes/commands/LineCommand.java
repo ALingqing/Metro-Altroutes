@@ -480,8 +480,8 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
 
         LineDataManager.ScheduleEntry schedule = lineDataManager.getSchedule(lineId);
         if (schedule != null) {
-            sendMsg(sender, "&7计划维护时段: &f" + schedule.formatTime(schedule.startMinute) + " - "
-                    + schedule.formatTime(schedule.endMinute));
+            sendMsg(sender, "&7计划维护时段: &f" + schedule.getFormattedStart() + " - "
+                    + schedule.getFormattedEnd());
         }
 
         Integer minutesLeft = lineDataManager.getAutoRecoverMinutesLeft(lineId);

@@ -153,8 +153,8 @@ public final class LineDataManager {
         Map<String, Integer> priorityMap = altRoutePriority.get(normalized);
         if (priorityMap != null && !priorityMap.isEmpty()) {
             return priorityMap.entrySet().stream()
-                    .sorted(Comparator.comparingInt(Map.Entry::getValue)
-                            .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
+                    .sorted(Comparator.comparingInt((Map.Entry<String, Integer> e) -> e.getValue())
+                            .thenComparing(Map.Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER)))
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
         }
@@ -367,6 +367,9 @@ public final class LineDataManager {
                 return 0;
             }
         }
+
+        public String getFormattedStart() { return formatTime(startMinute); }
+        public String getFormattedEnd() { return formatTime(endMinute); }
 
         public boolean isWithinWindow(int currentMinute) {
             if (startMinute <= endMinute) {
