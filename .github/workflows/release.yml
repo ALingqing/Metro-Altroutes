@@ -1,0 +1,46 @@
+name: release
+
+on:
+  push:
+    tags: [ v* ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: temurin
+          cache: maven
+
+      - name: Cache Metro
+        id: cache-metro
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/cubexmc/metro
+          key: metro-1.1.7
+
+      - name: Build Metro
+        if: steps.cache-metro.outputs.cache-hit != 'true'
+        run: |
+          git clone --depth 1 --single-branch https://github.com/CubeX-MC/Metro.git /tmp/Metro
+          cd /tmp/Metro
+          mvn install -DskipTests -q
+
+      - name: Build plugin
+        run: mvn -B package --file pom.xml
+
+      - name: Create Release
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            target/metro-altroutes.jar \
+            --title "${{ github.ref_name }}" \
+            --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
