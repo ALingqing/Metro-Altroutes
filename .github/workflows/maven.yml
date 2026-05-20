@@ -11,6 +11,7 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "main" ]
+    tags: [ "v*" ]
   pull_request:
     branches: [ "main" ]
 
@@ -47,4 +48,11 @@ jobs:
       with:
         name: metro-altroutes
         path: target/metro-altroutes.jar
+
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v2
+      with:
+        files: target/metro-altroutes.jar
+        generate_release_notes: true
 
