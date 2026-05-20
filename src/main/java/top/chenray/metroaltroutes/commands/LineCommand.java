@@ -10,6 +10,7 @@ import org.cubexmc.metro.model.LineStatus;
 import org.jetbrains.annotations.NotNull;
 import top.chenray.metroaltroutes.MetroAltroutes;
 import top.chenray.metroaltroutes.cache.RouteCache;
+import top.chenray.metroaltroutes.data.LineDataManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,11 +25,14 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
     private final MetroAltroutes plugin;
     private final MetroAPI api;
     private final RouteCache cache;
+    private final LineDataManager lineDataManager;
 
     private static final List<String> SUBCOMMANDS = List.of(
             "setstatus", "setsuspensionmsg",
             "setaltroute", "clearaltroute",
-            "status", "info", "list"
+            "setautoresume", "cancelautoresume",
+            "setschedule", "clearschedule",
+            "stats", "status", "info", "list"
     );
 
     private static final List<String> STATUS_VALUES = List.of(
@@ -39,6 +43,7 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
         this.api = plugin.getMetroAPI();
         this.cache = plugin.getRouteCache();
+        this.lineDataManager = plugin.getLineDataManager();
     }
 
     // ==================== CommandExecutor ====================
@@ -81,6 +86,16 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
                 return handleSetAltRoute(sender, args);
             case "clearaltroute":
                 return handleClearAltRoute(sender, args);
+            case "setautoresume":
+                return handleSetAutoResume(sender, args);
+            case "cancelautoresume":
+                return handleCancelAutoResume(sender, args);
+            case "setschedule":
+                return handleSetSchedule(sender, args);
+            case "clearschedule":
+                return handleClearSchedule(sender, args);
+            case "stats":
+                return handleStats(sender, args);
             case "status":
                 return handleStatus(sender, args);
             case "info":
@@ -212,12 +227,20 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
      */
     private boolean handleSetAltRoute(CommandSender sender, String[] args) {
         if (args.length < 4) {
-            sendMsg(sender, "&c用法: /m line setaltroute <线路ID> <替代线路ID>");
+            sendMsg(sender, "&c用法: /m line setaltroute <线路ID> <替代线路ID> [优先级]");
             return true;
         }
 
         String lineId = args[2];
         String altId = args[3];
+        int priority = 100;
+        if (args.length >= 5) {
+            try {
+                priority = Integer.parseInt(args[4]);
+            } catch (NumberFormatException ignore) {
+                priority = 100;
+            }
+        }
 
         if (!api.canManageLine(sender, lineId)) {
             sendMsg(sender, "&c你没有权限管理线路 &6" + lineId + "&c。");
@@ -255,9 +278,10 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
             line.addAlternativeRoute(altId);
             api.getLineManager().saveConfig();
             cache.invalidate(lineId);
+            lineDataManager.setAlternativeRoute(lineId, altId, priority);
 
-            sendMsg(sender, "&a已将 &6" + altId + " &a设为线路 &6" + lineId + " &a的替代路线。");
-            plugin.log(sender.getName() + " 设置线路 " + lineId + " 替代路线: " + altId);
+            sendMsg(sender, "&a已将 &6" + altId + " &a设为线路 &6" + lineId + " &a的替代路线，优先级 " + priority + "。");
+            plugin.log(sender.getName() + " 设置线路 " + lineId + " 替代路线: " + altId + " (priority=" + priority + ")");
 
         } catch (Exception e) {
             sendMsg(sender, "&c设置替代路线时出错: " + e.getMessage());
@@ -270,15 +294,16 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
     // ---- clearaltroute ----
 
     /**
-     * /m line clearaltroute <lineId>
+     * /m line clearaltroute <lineId> [altLineId]
      */
     private boolean handleClearAltRoute(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            sendMsg(sender, "&c用法: /m line clearaltroute <线路ID>");
+            sendMsg(sender, "&c用法: /m line clearaltroute <线路ID> [替代线路ID]");
             return true;
         }
 
         String lineId = args[2];
+        String altId = args.length >= 4 ? args[3] : null;
 
         if (!api.canManageLine(sender, lineId)) {
             sendMsg(sender, "&c你没有权限管理线路 &6" + lineId + "&c。");
@@ -290,23 +315,178 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        try {
-            Line line = api.getLineManager().getLine(lineId);
-            if (line == null) {
-                sendMsg(sender, "&c无法获取线路内部对象。");
-                return true;
+        if (altId == null) {
+            try {
+                Line line = api.getLineManager().getLine(lineId);
+                if (line == null) {
+                    sendMsg(sender, "&c无法获取线路内部对象。");
+                    return true;
+                }
+
+                line.getAlternativeRouteIds().clear();
+                api.getLineManager().saveConfig();
+                cache.invalidate(lineId);
+                lineDataManager.clearAlternativeRoutes(lineId);
+                sendMsg(sender, "&a已清除线路 &6" + lineId + " &a的所有替代路线。");
+                plugin.log(sender.getName() + " 清除了线路 " + lineId + " 的全部替代路线。");
+            } catch (Exception e) {
+                sendMsg(sender, "&c清除替代路线时出错: " + e.getMessage());
             }
+            return true;
+        }
 
-            // 使用 Line 的 API 清除替代路线
-            line.getAlternativeRouteIds().clear();
-            api.getLineManager().saveConfig();
-            cache.invalidate(lineId);
+        if (!lineDataManager.removeAlternativeRoute(lineId, altId)) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c未配置替代路线 &6" + altId + "&c。请确认替代线路是否存在。");
+            return true;
+        }
 
-            sendMsg(sender, "&a已清除线路 &6" + lineId + " &a的所有替代路线。");
-            plugin.log(sender.getName() + " 清除了线路 " + lineId + " 的替代路线。");
+        cache.invalidate(lineId);
+        sendMsg(sender, "&a已删除线路 &6" + lineId + " &a的替代路线 &6" + altId + "&a。");
+        plugin.log(sender.getName() + " 删除了线路 " + lineId + " 的替代路线 " + altId + "。");
+        return true;
+    }
 
-        } catch (Exception e) {
-            sendMsg(sender, "&c清除替代路线时出错: " + e.getMessage());
+    // ---- setautoresume ----
+
+    private boolean handleSetAutoResume(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            sendMsg(sender, "&c用法: /m line setautoresume <线路ID> <分钟>");
+            return true;
+        }
+
+        String lineId = args[2];
+        int minutes;
+        try {
+            minutes = Integer.parseInt(args[3]);
+        } catch (NumberFormatException e) {
+            sendMsg(sender, "&c请提供有效的时间（分钟）。");
+            return true;
+        }
+
+        if (!api.canManageLine(sender, lineId)) {
+            sendMsg(sender, "&c你没有权限管理线路 &6" + lineId + "&c。");
+            return true;
+        }
+        if (api.getLine(lineId) == null) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c不存在。");
+            return true;
+        }
+
+        lineDataManager.setAutoRecover(lineId, minutes);
+        sendMsg(sender, "&a已为线路 &6" + lineId + " &a设置自动恢复，" + minutes + " 分钟后恢复正常。");
+        plugin.log(sender.getName() + " 为线路 " + lineId + " 设置自动恢复 " + minutes + " 分钟。");
+        return true;
+    }
+
+    private boolean handleCancelAutoResume(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sendMsg(sender, "&c用法: /m line cancelautoresume <线路ID>");
+            return true;
+        }
+
+        String lineId = args[2];
+        if (!api.canManageLine(sender, lineId)) {
+            sendMsg(sender, "&c你没有权限管理线路 &6" + lineId + "&c。");
+            return true;
+        }
+        if (api.getLine(lineId) == null) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c不存在。");
+            return true;
+        }
+        if (!lineDataManager.cancelAutoRecover(lineId)) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c没有设置自动恢复。");
+            return true;
+        }
+
+        sendMsg(sender, "&a已取消线路 &6" + lineId + " &a的自动恢复设置。");
+        plugin.log(sender.getName() + " 取消了线路 " + lineId + " 的自动恢复。");
+        return true;
+    }
+
+    private boolean handleSetSchedule(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            sendMsg(sender, "&c用法: /m line setschedule <线路ID> <开始时间>-<结束时间> (HH:mm)");
+            return true;
+        }
+
+        String lineId = args[2];
+        String period = args[3];
+        if (!period.contains("-")) {
+            sendMsg(sender, "&c时间格式错误，请使用 HH:mm-HH:mm。");
+            return true;
+        }
+
+        String[] parts = period.split("-", 2);
+        String start = parts[0];
+        String end = parts[1];
+
+        if (!api.canManageLine(sender, lineId)) {
+            sendMsg(sender, "&c你没有权限管理线路 &6" + lineId + "&c。");
+            return true;
+        }
+        if (api.getLine(lineId) == null) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c不存在。");
+            return true;
+        }
+
+        lineDataManager.setSchedule(lineId, start, end);
+        sendMsg(sender, "&a已为线路 &6" + lineId + " &a设置计划维护时段: " + start + " - " + end + "。");
+        plugin.log(sender.getName() + " 设置线路 " + lineId + " 的维护时段 " + start + " - " + end + "。");
+        return true;
+    }
+
+    private boolean handleClearSchedule(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sendMsg(sender, "&c用法: /m line clearschedule <线路ID>");
+            return true;
+        }
+
+        String lineId = args[2];
+        if (!api.canManageLine(sender, lineId)) {
+            sendMsg(sender, "&c你没有权限管理线路 &6" + lineId + "&c。");
+            return true;
+        }
+        if (api.getLine(lineId) == null) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c不存在。");
+            return true;
+        }
+        if (!lineDataManager.clearSchedule(lineId)) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c没有设置计划维护时段。");
+            return true;
+        }
+
+        sendMsg(sender, "&a已取消线路 &6" + lineId + " &a的计划维护时段。");
+        plugin.log(sender.getName() + " 取消了线路 " + lineId + " 的计划维护时段。");
+        return true;
+    }
+
+    private boolean handleStats(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            sendMsg(sender, "&c用法: /m line stats <线路ID>");
+            return true;
+        }
+
+        String lineId = args[2];
+        if (api.getLine(lineId) == null) {
+            sendMsg(sender, "&c线路 &6" + lineId + " &c不存在。");
+            return true;
+        }
+
+        LineDataManager.LineStats stats = lineDataManager.getStats(lineId);
+        sendMsg(sender, "&6===== &e线路 " + lineId + " 运行统计 &6=====");
+        sendMsg(sender, "&7暂停次数: &f" + stats.suspendCount());
+        sendMsg(sender, "&7拦截人数: &f" + stats.interceptCount());
+        sendMsg(sender, "&7推荐替代路线次数: &f" + stats.altRecommendCount());
+
+        LineDataManager.ScheduleEntry schedule = lineDataManager.getSchedule(lineId);
+        if (schedule != null) {
+            sendMsg(sender, "&7计划维护时段: &f" + schedule.formatTime(schedule.startMinute) + " - "
+                    + schedule.formatTime(schedule.endMinute));
+        }
+
+        Integer minutesLeft = lineDataManager.getAutoRecoverMinutesLeft(lineId);
+        if (minutesLeft != null) {
+            sendMsg(sender, "&7自动恢复剩余: &f" + minutesLeft + " 分钟");
         }
 
         return true;
@@ -335,7 +515,7 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
         boolean suspended = cache.isSuspended(lineId);
         boolean maintenance = cache.isMaintenance(lineId);
         String suspensionMsg = cache.getSuspensionMessage(lineId);
-        List<String> altRoutes = cache.getAlternativeRoutes(lineId);
+        List<String> altRoutes = lineDataManager.getAlternativeRoutes(lineId);
 
         sendMsg(sender, "&6===== &e线路 &f" + lineId + " &e运营状态 &6=====");
         sendMsg(sender, "&7状态: " + getStatusDisplay(status));
@@ -410,7 +590,7 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
         }
 
         // 替代路线
-        List<String> alts = cache.getAlternativeRoutes(lineId);
+        List<String> alts = lineDataManager.getAlternativeRoutes(lineId);
         if (alts != null && !alts.isEmpty()) {
             sendMsg(sender, "&7替代路线: &b" + String.join("&7, &b", alts));
         }
@@ -523,8 +703,13 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
         sendMsg(sender, "&6===== &eMetro 线路运营管理 &6=====");
         sendMsg(sender, "&7/" + label + " line setstatus <线路ID> <状态>");
         sendMsg(sender, "&7/" + label + " line setsuspensionmsg <线路ID> <公告>");
-        sendMsg(sender, "&7/" + label + " line setaltroute <线路ID> <替代ID>");
-        sendMsg(sender, "&7/" + label + " line clearaltroute <线路ID>");
+        sendMsg(sender, "&7/" + label + " line setaltroute <线路ID> <替代ID> [优先级]");
+        sendMsg(sender, "&7/" + label + " line clearaltroute <线路ID> [替代ID]");
+        sendMsg(sender, "&7/" + label + " line setautoresume <线路ID> <分钟>");
+        sendMsg(sender, "&7/" + label + " line cancelautoresume <线路ID>");
+        sendMsg(sender, "&7/" + label + " line setschedule <线路ID> <开始时间>-<结束时间>");
+        sendMsg(sender, "&7/" + label + " line clearschedule <线路ID>");
+        sendMsg(sender, "&7/" + label + " line stats <线路ID>");
         sendMsg(sender, "&7/" + label + " line status <线路ID>");
         sendMsg(sender, "&7/" + label + " line info <线路ID>");
         sendMsg(sender, "&7/" + label + " line list");
@@ -533,7 +718,7 @@ public final class LineCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendLineUsage(CommandSender sender) {
-        sendMsg(sender, "&c未知子命令。可用: setstatus, setsuspensionmsg, setaltroute, clearaltroute, status, info, list");
+        sendMsg(sender, "&c未知子命令。可用: setstatus, setsuspensionmsg, setaltroute, clearaltroute, setautoresume, cancelautoresume, setschedule, clearschedule, stats, status, info, list");
     }
 
     /**

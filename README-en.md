@@ -61,8 +61,13 @@ Note: Metro is not available on Maven Central. It is recommended to build Metro 
 |---------|-------------|
 | `line setstatus <id> <status>` | Set the line status |
 | `line setsuspensionmsg <id> <message>` | Set the suspension notice |
-| `line setaltroute <id> <altId>` | Set an alternate route |
-| `line clearaltroute <id>` | Clear the alternate route |
+| `line setaltroute <id> <altId> [priority]` | Set an alternate route (optional priority) |
+| `line clearaltroute <id> [altId]` | Clear alternate route(s) (single or all) |
+| `line setautoresume <id> <minutes>` | Set auto-recovery countdown |
+| `line cancelautoresume <id>` | Cancel auto-recovery |
+| `line setschedule <id> <start>-<end>` | Set maintenance window (HH:mm-HH:mm) |
+| `line clearschedule <id>` | Clear maintenance window |
+| `line stats <id>` | View line operation statistics |
 | `line status <id>` | View the line status |
 | `line info <id>` | View line details |
 | `line list` | List all lines |
@@ -96,8 +101,8 @@ Note: Metro is not available on Maven Central. It is recommended to build Metro 
 # Set a suspension notice
 /m line setsuspensionmsg line1 "&cLine 1 is paused, estimated recovery in 2 hours."
 
-# Set line 2 as an alternate route
-/m line setaltroute line1 line2
+# Set line 2 as an alternate route with priority
+/m line setaltroute line1 line2 50
 
 # View line status
 /m line status line1
@@ -105,11 +110,23 @@ Note: Metro is not available on Maven Central. It is recommended to build Metro 
 # List all lines
 /m line list
 
+# View line statistics
+/m line stats line1
+
+# Set auto-recovery in 30 minutes
+/m line setautoresume line1 30
+
+# Schedule a maintenance window (02:00-04:00 daily)
+/m line setschedule line1 02:00-04:00
+
+# Clear maintenance window
+/m line clearschedule line1
+
 # Resume normal operation
 /m line setstatus line1 normal
 
-# Clear alternate routes
-/m line clearaltroute line1
+# Remove a specific alternate route
+/m line clearaltroute line1 line2
 ```
 
 ---
@@ -123,6 +140,8 @@ src/main/java/top/chenray/metroaltroutes/
 │   └── RouteCache.java       # Line status cache
 ├── commands/
 │   └── LineCommand.java      # Command handling
+├── data/
+│   └── LineDataManager.java  # Data management: alt-route priorities, auto-recovery, schedules, statistics
 └── listeners/
     └── BoardingListener.java # Boarding block and alternate route logic
 ```

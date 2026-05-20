@@ -1,5 +1,6 @@
 package top.chenray.metroaltroutes;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.cubexmc.metro.api.MetroAPI;
 import top.chenray.metroaltroutes.cache.RouteCache;
@@ -20,6 +21,7 @@ public final class MetroAltroutes extends JavaPlugin {
     private static MetroAltroutes instance;
     private MetroAPI metroAPI;
     private RouteCache routeCache;
+    private top.chenray.metroaltroutes.data.LineDataManager lineDataManager;
 
     @Override
     public void onEnable() {
@@ -33,6 +35,8 @@ public final class MetroAltroutes extends JavaPlugin {
             return;
         }
 
+        saveDefaultConfig();
+
         getLogger().info("已成功连接到 Metro API v" +
                 metroAPI.getPlugin().getDescription().getVersion());
         getLogger().info("运行环境: " + (metroAPI.isFoliaRuntime() ? "Folia" : "Paper/Spigot"));
@@ -40,6 +44,10 @@ public final class MetroAltroutes extends JavaPlugin {
         // 初始化性能缓存
         routeCache = new RouteCache(this);
         routeCache.startCacheRefreshTask();
+
+        // 初始化线路数据管理器
+        lineDataManager = new top.chenray.metroaltroutes.data.LineDataManager(this);
+        lineDataManager.startScheduleTask();
 
         // 注册命令
         LineCommand commandExecutor = new LineCommand(this);
@@ -75,6 +83,10 @@ public final class MetroAltroutes extends JavaPlugin {
         return routeCache;
     }
 
+    public top.chenray.metroaltroutes.data.LineDataManager getLineDataManager() {
+        return lineDataManager;
+    }
+
     // ==================== Utility ====================
 
     /**
@@ -82,6 +94,13 @@ public final class MetroAltroutes extends JavaPlugin {
      */
     public void log(String message) {
         getLogger().log(Level.INFO, message);
+    }
+
+    public void notifyAdmins(String message) {
+        getLogger().info(message);
+        getServer().getOnlinePlayers().stream()
+                .filter(player -> player.isOp() || player.hasPermission("metroaltroutes.admin"))
+                .forEach(player -> player.sendMessage("§8[§bmetro-altroutes§8] §7" + message));
     }
 
     /**

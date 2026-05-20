@@ -21,7 +21,10 @@ metro-altroutes 的设计目标是为 Metro 生态提供一套可预测的线路
 | 运营状态策略 | 支持正常、暂停、维护三种线路状态，并确保状态切换即时生效 |
 | 自动乘车拦截 | 暂停线路自动阻止玩家上车，避免异常运营行为产生 |
 | 统一公告系统 | 允许为暂停线路配置多语言提示和自定义提示文本 |
-| 智能替代路线 | 为暂停线路推荐可用替代线路，提高玩家出行体验 |
+| 智能替代路线 | 为暂停线路推荐可用替代线路，支持优先级排序 |
+| 自动恢复调度 | 设置倒计时自动恢复正常运营，无需人工干预 |
+| 计划维护时段 | 按设定时间自动暂停/恢复，适用于定期维护场景 |
+| 运行统计 | 记录暂停次数、拦截人数和推荐替代路线次数 |
 | 缓存与性能 | 基于缓存策略优化状态读取，降低主线程占用并提升响应速度 |
 | 运行时兼容 | 原生兼容 Paper 与 Folia，支持多线程和异步调度 |
 
@@ -69,8 +72,13 @@ https://github.com/CubeX-MC/Metro
 |------|------|
 | `line setstatus <线路ID> <状态>` | 设置线路当前运营状态 |
 | `line setsuspensionmsg <线路ID> <消息>` | 设置暂停线路公告文本 |
-| `line setaltroute <线路ID> <替代ID>` | 为当前线路指定备用路线 |
-| `line clearaltroute <线路ID>` | 清除当前线路的备用路线配置 |
+| `line setaltroute <线路ID> <替代ID> [优先级]` | 为当前线路指定备用路线（可选优先级） |
+| `line clearaltroute <线路ID> [替代ID]` | 清除备用路线（可指定 ID 单条删除） |
+| `line setautoresume <线路ID> <分钟>` | 设置自动恢复倒计时，到期自动恢复正常 |
+| `line cancelautoresume <线路ID>` | 取消自动恢复设置 |
+| `line setschedule <线路ID> <开始>-<结束>` | 设置计划维护时段（HH:mm-HH:mm） |
+| `line clearschedule <线路ID>` | 取消计划维护时段 |
+| `line stats <线路ID>` | 查看线路运行统计数据 |
 | `line status <线路ID>` | 查询线路当前状态 |
 | `line info <线路ID>` | 查看线路详细运营信息 |
 | `line list` | 列出所有线路状态与配置 |
@@ -104,8 +112,8 @@ https://github.com/CubeX-MC/Metro
 # 为暂停线路设置通知文本
 /m line setsuspensionmsg line1 "&c线路临时暂停，预计 2 小时后恢复。"
 
-# 设置备用线路
-/m line setaltroute line1 line2
+# 设置备用线路（指定优先级）
+/m line setaltroute line1 line2 50
 
 # 查询线路状态
 /m line status line1
@@ -113,11 +121,23 @@ https://github.com/CubeX-MC/Metro
 # 列出所有线路状态
 /m line list
 
+# 查询线路统计数据
+/m line stats line1
+
+# 设置自动恢复（30 分钟后自动恢复正常）
+/m line setautoresume line1 30
+
+# 设置计划维护时段（每天 02:00-04:00 自动暂停）
+/m line setschedule line1 02:00-04:00
+
+# 取消计划维护时段
+/m line clearschedule line1
+
 # 将线路恢复为正常运营
 /m line setstatus line1 normal
 
-# 移除备用线路
-/m line clearaltroute line1
+# 移除某条备用线路
+/m line clearaltroute line1 line2
 ```
 
 ---
@@ -131,6 +151,8 @@ src/main/java/top/chenray/metroaltroutes/
 │   └── RouteCache.java       # 运营状态缓存模块，优化调用性能
 ├── commands/
 │   └── LineCommand.java      # 命令解析与业务逻辑入口
+├── data/
+│   └── LineDataManager.java  # 数据管理层：替代路线优先级、自动恢复、计划调度、运行统计
 └── listeners/
     └── BoardingListener.java # 乘车拦截与备用路线推荐逻辑
 ```

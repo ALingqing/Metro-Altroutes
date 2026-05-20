@@ -15,8 +15,13 @@ commands:
     usage: |
       §e/m line setstatus <线路ID> <normal|suspended|maintenance> §7- 设置线路运营状态
       §e/m line setsuspensionmsg <线路ID> <消息> §7- 设置暂停运营公告
-      §e/m line setaltroute <线路ID> <替代线路ID> §7- 设置替代路线
-      §e/m line clearaltroute <线路ID> §7- 清除替代路线
+      §e/m line setaltroute <线路ID> <替代ID> [优先级] §7- 设置替代路线
+      §e/m line clearaltroute <线路ID> [替代ID] §7- 清除替代路线
+      §e/m line setautoresume <线路ID> <分钟> §7- 设置自动恢复倒计时
+      §e/m line cancelautoresume <线路ID> §7- 取消自动恢复
+      §e/m line setschedule <线路ID> <开始>-<结束> §7- 设置计划维护时段
+      §e/m line clearschedule <线路ID> §7- 取消计划维护时段
+      §e/m line stats <线路ID> §7- 查看线路统计
       §e/m line status <线路ID> §7- 查看线路运营状态
       §e/m line info <线路ID> §7- 查看线路详细信息
       §e/m line list §7- 列出全部线路状态
