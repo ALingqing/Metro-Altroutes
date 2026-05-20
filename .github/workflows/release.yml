@@ -28,6 +28,7 @@ jobs:
 
       - name: Build Metro
         if: steps.cache-metro.outputs.cache-hit != 'true'
+        continue-on-error: true
         run: |
           git clone --depth 1 --single-branch https://github.com/CubeX-MC/Metro.git /tmp/Metro
           cd /tmp/Metro
@@ -36,11 +37,12 @@ jobs:
       - name: Build plugin
         run: mvn -B package --file pom.xml
 
-      - name: Create Release
-        run: |
-          gh release create "${{ github.ref_name }}" \
-            target/metro-altroutes.jar \
-            --title "${{ github.ref_name }}" \
-            --generate-notes
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: "自动发布 ${{ github.ref_name }}"
+          files: target/metro-altroutes.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
