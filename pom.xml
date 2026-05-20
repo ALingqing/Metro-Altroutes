@@ -25,6 +25,11 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <!-- JitPack - 自动从 GitHub 构建 Metro 依赖 -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -36,11 +41,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Metro API (本地JAR依赖，CI 中会先 install 到本地仓库) -->
+        <!-- Metro API (通过 JitPack 自动从 GitHub 获取) -->
         <dependency>
-            <groupId>org.cubexmc</groupId>
-            <artifactId>metro</artifactId>
-            <version>1.1.7</version>
+            <groupId>com.github.CubeX-MC</groupId>
+            <artifactId>Metro</artifactId>
+            <version>v1.1.7</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

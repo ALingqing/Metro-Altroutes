@@ -36,17 +36,11 @@ This plugin is an addon for [Metro](https://github.com/CubeX-MC/Metro), a high-p
 
 ## Build
 
-1. Install the Metro plugin JAR into your local Maven repository (one-time setup):
-   ```bash
-   mvn install:install-file -Dfile=Metro.jar -DgroupId=org.cubexmc -DartifactId=metro -Dversion=1.1.7 -Dpackaging=jar
-   ```
+```bash
+mvn clean package
+```
 
-2. Build with Maven:
-   ```bash
-   mvn clean package
-   ```
-
-> **Tip**: Download `Metro.jar` from [Metro Releases](https://github.com/CubeX-MC/Metro/releases).
+The built plugin will be at `target/metro-altroutes.jar`. Place it in your server's `plugins/` folder.
 
 3. The compiled jar is at `target/metro-altroutes.jar`. Place it in your server's `plugins/` folder.
 

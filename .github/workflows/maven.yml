@@ -27,14 +27,6 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - name: Install local Metro JAR to Maven local repository
-      run: |
-        mvn install:install-file \
-          -Dfile=libs/metro.jar \
-          -DgroupId=org.cubexmc \
-          -DartifactId=metro \
-          -Dversion=1.1.7 \
-          -Dpackaging=jar
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 

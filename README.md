@@ -35,20 +35,11 @@
 ---
 
 ## 构建
+```bash
+mvn clean package
+```
 
-1. 将 Metro 插件 JAR 安装到本地 Maven 仓库（只需执行一次）：
-   ```bash
-   mvn install:install-file -Dfile=Metro.jar -DgroupId=org.cubexmc -DartifactId=metro -Dversion=1.1.7 -Dpackaging=jar
-   ```
-
-2. 使用 Maven 构建：
-   ```bash
-   mvn clean package
-   ```
-
-3. 生成的插件位于 `target/metro-altroutes.jar`，放入服务器的 `plugins/` 目录。
-
-> **提示**：`Metro.jar` 可从 [Metro Releases](https://github.com/CubeX-MC/Metro/releases) 下载。
+生成的插件位于 `target/metro-altroutes.jar`，放入服务器的 `plugins/` 目录。
 
 ---
 
