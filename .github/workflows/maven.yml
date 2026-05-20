@@ -27,6 +27,18 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+    - name: Cache Metro build
+      id: cache-metro
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2/repository/org/cubexmc/metro
+        key: metro-1.1.7
+    - name: Build Metro dependency from source
+      if: steps.cache-metro.outputs.cache-hit != 'true'
+      run: |
+        git clone --depth 1 https://github.com/CubeX-MC/Metro.git /tmp/Metro
+        cd /tmp/Metro
+        mvn install -DskipTests -q
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 

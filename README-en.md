@@ -36,13 +36,13 @@ This plugin is an addon for [Metro](https://github.com/CubeX-MC/Metro), a high-p
 
 ## Build
 
+> Metro API dependency is automatically resolved via [JitPack](https://jitpack.io) — no manual setup needed.
+
 ```bash
 mvn clean package
 ```
 
 The built plugin will be at `target/metro-altroutes.jar`. Place it in your server's `plugins/` folder.
-
-3. The compiled jar is at `target/metro-altroutes.jar`. Place it in your server's `plugins/` folder.
 
 ---
 

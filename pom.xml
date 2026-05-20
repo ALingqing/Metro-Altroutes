@@ -7,7 +7,7 @@
 
     <groupId>top.chenray</groupId>
     <artifactId>metro-altroutes</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>metro-altroutes</name>
@@ -25,11 +25,6 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
-        <!-- JitPack - 自动从 GitHub 构建 Metro 依赖 -->
-        <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
     </repositories>
 
     <dependencies>
@@ -41,11 +36,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Metro API (通过 JitPack 自动从 GitHub 获取) -->
+        <!-- Metro API (编译需要，运行期由服务器插件目录提供) -->
         <dependency>
-            <groupId>com.github.CubeX-MC</groupId>
-            <artifactId>Metro</artifactId>
-            <version>v1.1.7</version>
+            <groupId>org.cubexmc</groupId>
+            <artifactId>metro</artifactId>
+            <version>[1.1.7,)</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -77,4 +72,44 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <activation>
+                <property>
+                    <name>metro.jar</name>
+                </property>
+            </activation>
+            <properties>
+                <metro.version>1.1.7</metro.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <version>3.1.4</version>
+                        <executions>
+                            <execution>
+                                <id>install-metro</id>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>install-file</goal>
+                                </goals>
+                                <configuration>
+                                    <file>${metro.jar}</file>
+                                    <groupId>org.cubexmc</groupId>
+                                    <artifactId>metro</artifactId>
+                                    <version>${metro.version}</version>
+                                    <packaging>jar</packaging>
+                                    <createChecksum>true</createChecksum>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

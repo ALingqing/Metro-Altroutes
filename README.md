@@ -35,8 +35,23 @@
 ---
 
 ## 构建
+
 ```bash
+# 先安装 Metro 依赖到本地仓库（只需一次）
+git clone https://github.com/CubeX-MC/Metro.git
+cd Metro
+mvn install -DskipTests
+cd ..
+
+# 构建本插件
+cd metro-altroutes
 mvn clean package
+```
+
+或者直接从服务器插件目录引用已有 Metro.jar：
+
+```bash
+mvn clean package -Dmetro.jar=服务器路径/plugins/Metro.jar
 ```
 
 生成的插件位于 `target/metro-altroutes.jar`，放入服务器的 `plugins/` 目录。
