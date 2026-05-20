@@ -6,6 +6,8 @@
 
 metro-altroutes is a simple addon for Metro. It helps manage line status, show suspension notices, recommend alternate routes, and block boarding on paused lines.
 
+📖 [wiki/Commands-en.md](wiki/Commands-en.md) · [docs/architecture.md](docs/architecture.md) · [docs/api.md](docs/api.md)
+
 ---
 
 ## What it does
@@ -83,6 +85,8 @@ Note: Metro is not available on Maven Central. It is recommended to build Metro 
 | `maintenance` | Line is in maintenance | Yes |
 
 ---
+
+
 
 ## Permissions
 

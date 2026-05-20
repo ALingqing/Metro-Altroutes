@@ -6,6 +6,8 @@
 
 metro-altroutes 是一款面向高端 Minecraft 服务器的 Metro 扩展插件，专注于轨道交通运营管理、乘车行为控制和备用线路调度。它基于 Metro API 进行深度集成，提供稳定、可扩展且符合大型服务器运维需求的运营逻辑。
 
+📖 [wiki/Commands.md](wiki/Commands.md) · [docs/architecture.md](docs/architecture.md) · [docs/api.md](docs/api.md)
+
 ---
 
 ## 产品定位
@@ -94,6 +96,7 @@ https://github.com/CubeX-MC/Metro
 | `maintenance` | 维护中 | 是 |
 
 ---
+
 
 ## 权限说明
 
