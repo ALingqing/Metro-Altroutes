@@ -2,7 +2,6 @@
 target/
 dependency-reduced-pom.xml
 *.jar
-!libs/*.jar
 
 # IDE
 .classpath
