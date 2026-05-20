@@ -1,73 +1,80 @@
 # metro-altroutes — Metro Addon
 
-[![Metro](https://img.shields.io/badge/Metro-%E2%86%91%20GitHub-blue?style=flat-square)](https://github.com/CubeX-MC/Metro)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.21-blue)
+![Paper](https://img.shields.io/badge/Paper-1.21-brightgreen)
+![Folia](https://img.shields.io/badge/Folia-%E2%9C%93-supported)
 
-> **Line status management · Suspension announcements · Alternate route suggestions · Ride blocking**
-
----
-
-## About Metro
-
-This plugin is an addon for [Metro](https://github.com/CubeX-MC/Metro), a high-performance Minecraft rail transit plugin supporting Paper 1.20+ and Folia.
-
-🔗 Metro GitHub: https://github.com/CubeX-MC/Metro
+metro-altroutes is a simple addon for Metro. It helps manage line status, show suspension notices, recommend alternate routes, and block boarding on paused lines.
 
 ---
 
-## Features
+## What it does
 
-| Feature | Description |
-|---------|-------------|
-| 🚦 **Line Status** | Set lines to normal / suspended / maintenance |
-| 🚫 **Ride Blocking** | Automatically block boarding on suspended lines |
-| 📢 **Suspension Message** | Show custom messages when boarding is blocked |
-| 🔀 **Alternate Routes** | Recommend alternate lines automatically |
-| ⚡ **Cache Optimisation** | Loads on startup, refreshes on demand (TTL 30s), reduced main-thread overhead |
-| 🧵 **Folia Compatible** | Auto-detects Paper or Folia runtime |
+- Set a line to normal, suspended, or maintenance
+- Automatically block boarding on suspended lines
+- Show a custom message when a line is paused
+- Recommend alternate lines when needed
+- Cache line status to reduce server load
+- Work on both Paper and Folia
+
+---
+
+## Who should use it
+
+- Servers that run subway or rail systems
+- Servers that need clear line suspension notices
+- Servers that want alternate route support
+- Servers already using Metro
 
 ---
 
 ## Dependencies
 
-- **Paper** 1.20.4+ or **Folia**
-- **Metro** (https://github.com/CubeX-MC/Metro)
+- Paper 1.20.4 or newer
+- Folia
+- Metro 1.1.7 or newer
+
+Metro source repository:
+
+https://github.com/CubeX-MC/Metro
+
+Metro Maven coordinates:
+
+`org.cubexmc:metro:[1.1.7,)`
+
+Note: Metro is not available on Maven Central. It is recommended to build Metro locally or use an existing Metro.jar.
 
 ---
 
-## Build
+## Install
 
-> Metro API dependency is automatically resolved via [JitPack](https://jitpack.io) — no manual setup needed.
-
-```bash
-mvn clean package
-```
-
-The built plugin will be at `target/metro-altroutes.jar`. Place it in your server's `plugins/` folder.
+1. Make sure Metro is installed on your server.
+2. Put `metro-altroutes.jar` in the `plugins/` folder.
+3. Restart the server or reload the plugin.
+4. Use `/m` commands to manage lines.
 
 ---
 
 ## Commands
 
-All commands use the `/m` prefix in-game.
-
 | Command | Description |
 |---------|-------------|
-| `line setstatus <id> <status>` | Set line operational status |
-| `line setsuspensionmsg <id> <message>` | Set suspension announcement (supports § colour codes) |
+| `line setstatus <id> <status>` | Set the line status |
+| `line setsuspensionmsg <id> <message>` | Set the suspension notice |
 | `line setaltroute <id> <altId>` | Set an alternate route |
-| `line clearaltroute <id>` | Clear alternate routes |
-| `line status <id>` | View line status |
-| `line info <id>` | View full line snapshot |
-| `line list` | List all lines with status |
-| `reload` | Reload cache (hot reload) |
+| `line clearaltroute <id>` | Clear the alternate route |
+| `line status <id>` | View the line status |
+| `line info <id>` | View line details |
+| `line list` | List all lines |
+| `reload` | Reload cache |
 
-### Status Values
+### Status values
 
-| Value | Effect | Boardable |
-|-------|--------|-----------|
-| `normal` | Normal operation (default) | ✅ Yes |
-| `suspended` | Service suspended | ❌ No (blocked + notified) |
-| `maintenance` | Under maintenance | ✅ Yes |
+| Value | Meaning | Boardable |
+|-------|---------|-----------|
+| `normal` | Line is running | Yes |
+| `suspended` | Line is paused | No |
+| `maintenance` | Line is in maintenance | Yes |
 
 ---
 
@@ -75,8 +82,8 @@ All commands use the `/m` prefix in-game.
 
 | Permission | Description | Default |
 |------------|-------------|---------|
-| `metroaltroutes.admin` | Manage line operational status | OP |
-| `metroaltroutes.use` | View line information | Everyone |
+| `metroaltroutes.admin` | Manage line status | OP |
+| `metroaltroutes.use` | View line info | Everyone |
 
 ---
 
@@ -86,8 +93,8 @@ All commands use the `/m` prefix in-game.
 # Suspend line 1
 /m line setstatus line1 suspended
 
-# Set suspension message
-/m line setsuspensionmsg line1 "&cLine 1 is under maintenance, estimated recovery in 2 hours."
+# Set a suspension notice
+/m line setsuspensionmsg line1 "&cLine 1 is paused, estimated recovery in 2 hours."
 
 # Set line 2 as an alternate route
 /m line setaltroute line1 line2
@@ -107,27 +114,15 @@ All commands use the `/m` prefix in-game.
 
 ---
 
-## Workflow
-
-1. Admin sets a line to `suspended`
-2. Cache auto-updates within 30 seconds
-3. When a player tries to board, **boarding is blocked**
-4. The blocked player sees:
-   - 📢 Suspension message (if set)
-   - 🔀 Alternate route suggestion (if set)
-5. When restored to `normal`, boarding resumes normally
-
----
-
-## Project Structure
+## Project structure
 
 ```
 src/main/java/top/chenray/metroaltroutes/
-├── MetroAltroutes.java       # Main class (API hook, task scheduling)
+├── MetroAltroutes.java       # Plugin entry point
 ├── cache/
-│   └── RouteCache.java       # Data cache (performance)
+│   └── RouteCache.java       # Line status cache
 ├── commands/
-│   └── LineCommand.java      # /m line command executor
+│   └── LineCommand.java      # Command handling
 └── listeners/
-    └── BoardingListener.java # Ride blocker & route recommender
+    └── BoardingListener.java # Boarding block and alternate route logic
 ```
