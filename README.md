@@ -73,7 +73,7 @@ https://github.com/CubeX-MC/Metro
 | `line setstatus <线路ID> <状态>` | 设置线路当前运营状态 |
 | `line setsuspensionmsg <线路ID> <消息>` | 设置暂停线路公告文本 |
 | `line setaltroute <线路ID> <替代ID> [优先级]` | 为当前线路指定备用路线（可选优先级） |
-| `line clearaltroute <线路ID> [替代ID]` | 清除备用路线（可指定 ID 单条删除） |
+| `line clearaltroute <线路ID> [替代ID]` | 清除备用路线（可指定 ID 单条删除） | 
 | `line setautoresume <线路ID> <分钟>` | 设置自动恢复倒计时，到期自动恢复正常 |
 | `line cancelautoresume <线路ID>` | 取消自动恢复设置 |
 | `line setschedule <线路ID> <开始>-<结束>` | 设置计划维护时段（HH:mm-HH:mm） |
