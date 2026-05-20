@@ -33,6 +33,7 @@ metro-altroutes is a simple addon for Metro. It helps manage line status, show s
 - Paper 1.20.4 or newer
 - Folia
 - Metro 1.1.7 or newer
+- PlaceholderAPI (optional, for placeholder support)
 
 Metro source repository:
 
@@ -92,6 +93,39 @@ Note: Metro is not available on Maven Central. It is recommended to build Metro 
 
 ---
 
+## PlaceholderAPI support
+
+If PlaceholderAPI is installed on your server, use these placeholders (replace `<line>` with the actual line ID):
+
+| Placeholder | Returns |
+|-------------|---------|
+| `%metroaltroutes_line_status_<line>%` | Line status: `normal` / `suspended` / `maintenance` |
+| `%metroaltroutes_line_status_display_<line>%` | Coloured status display text |
+| `%metroaltroutes_line_boardable_<line>%` | Whether boardable: `true` / `false` |
+| `%metroaltroutes_line_suspended_<line>%` | Whether suspended: `yes` / `no` |
+| `%metroaltroutes_line_suspension_msg_<line>%` | Suspension notice text |
+| `%metroaltroutes_line_altroutes_<line>%` | Alternate routes (comma-separated) |
+| `%metroaltroutes_line_altroute_count_<line>%` | Number of alternate routes |
+| `%metroaltroutes_line_name_<line>%` | Line name |
+| `%metroaltroutes_line_terminus_<line>%` | Line terminus |
+| `%metroaltroutes_line_stop_count_<line>%` | Number of stops |
+| `%metroaltroutes_line_owner_<line>%` | Line owner |
+| `%metroaltroutes_line_color_<line>%` | Line colour code |
+| `%metroaltroutes_line_stats_suspend_<line>%` | Suspend count |
+| `%metroaltroutes_line_stats_intercept_<line>%` | Intercept count |
+| `%metroaltroutes_line_stats_alt_recommend_<line>%` | Alt-route recommendation count |
+| `%metroaltroutes_line_autoresume_<line>%` | Auto-resume minutes left (0=not set) |
+| `%metroaltroutes_line_schedule_<line>%` | Maintenance window (e.g. `02:00-04:00`) |
+
+Example scoreboard or plugin usage:
+
+```yaml
+%metroaltroutes_line_status_display_line1%
+%metroaltroutes_line_altroutes_line1%
+```
+
+---
+
 ## Examples
 
 ```bash
@@ -142,6 +176,8 @@ src/main/java/top/chenray/metroaltroutes/
 │   └── LineCommand.java      # Command handling
 ├── data/
 │   └── LineDataManager.java  # Data management: alt-route priorities, auto-recovery, schedules, statistics
+├── hooks/
+│   └── PlaceholderHook.java  # PlaceholderAPI expansion exposing line data
 └── listeners/
     └── BoardingListener.java # Boarding block and alternate route logic
 ```

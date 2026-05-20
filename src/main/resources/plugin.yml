@@ -7,6 +7,8 @@ author: ALINGQING,ANGUSHUSHU,LONELYXIYA
 
 depend:
   - Metro
+softdepend:
+  - PlaceholderAPI
 
 commands:
   metroaltroutes:

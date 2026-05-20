@@ -44,6 +44,7 @@ metro-altroutes 的设计目标是为 Metro 生态提供一套可预测的线路
 - Paper 1.20.4 及以上
 - Folia 运行时
 - Metro 1.1.7 及以上版本
+- PlaceholderAPI（可选，用于占位符支持）
 
 Metro 依赖源仓库：
 
@@ -103,6 +104,40 @@ https://github.com/CubeX-MC/Metro
 
 ---
 
+## PlaceholderAPI 占位符
+
+如果服务器安装了 PlaceholderAPI，可以使用以下占位符（将 `<line>` 替换为实际线路 ID）：
+
+| 占位符 | 返回值 |
+|--------|--------|
+| `%metroaltroutes_line_status_<line>%` | 线路状态：`normal` / `suspended` / `maintenance` |
+| `%metroaltroutes_line_status_display_<line>%` | 带颜色图标的运营状态文本 |
+| `%metroaltroutes_line_boardable_<line>%` | 是否可乘坐：`true` / `false` |
+| `%metroaltroutes_line_suspended_<line>%` | 是否暂停：`yes` / `no` |
+| `%metroaltroutes_line_suspension_msg_<line>%` | 暂停公告文本 |
+| `%metroaltroutes_line_altroutes_<line>%` | 替代路线列表（逗号分隔） |
+| `%metroaltroutes_line_altroute_count_<line>%` | 替代路线数量 |
+| `%metroaltroutes_line_name_<line>%` | 线路名称 |
+| `%metroaltroutes_line_terminus_<line>%` | 线路终点站 |
+| `%metroaltroutes_line_stop_count_<line>%` | 站点数量 |
+| `%metroaltroutes_line_owner_<line>%` | 线路拥有者 |
+| `%metroaltroutes_line_color_<line>%` | 线路颜色代码 |
+| `%metroaltroutes_line_stats_suspend_<line>%` | 暂停次数统计 |
+| `%metroaltroutes_line_stats_intercept_<line>%` | 拦截人数统计 |
+| `%metroaltroutes_line_stats_alt_recommend_<line>%` | 推荐替代路线次数 |
+| `%metroaltroutes_line_autoresume_<line>%` | 自动恢复剩余分钟数（0=未设置） |
+| `%metroaltroutes_line_schedule_<line>%` | 计划维护时段（如 `02:00-04:00`） |
+
+示例计分板配置：
+
+```yaml
+# 在计分板或插件中显示线路状态
+%metroaltroutes_line_status_display_line1%
+%metroaltroutes_line_altroutes_line1%
+```
+
+---
+
 ## 使用示例
 
 ```bash
@@ -153,6 +188,8 @@ src/main/java/top/chenray/metroaltroutes/
 │   └── LineCommand.java      # 命令解析与业务逻辑入口
 ├── data/
 │   └── LineDataManager.java  # 数据管理层：替代路线优先级、自动恢复、计划调度、运行统计
+├── hooks/
+│   └── PlaceholderHook.java  # PlaceholderAPI 扩展，暴露线路数据为占位符
 └── listeners/
     └── BoardingListener.java # 乘车拦截与备用路线推荐逻辑
 ```

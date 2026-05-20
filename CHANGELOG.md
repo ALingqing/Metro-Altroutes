@@ -12,6 +12,7 @@
 - **`clearaltroute [替代ID]` 单条删除**：支持按 ID 单独删除某条替代路线，而不再只能清空全部
 - **`LineDataManager`**：新增数据管理层，统一管理替代路线优先级、自动恢复任务、计划调度、运行统计
 - **定时调度任务**：每 60 秒检查自动恢复到期和计划维护时段切换
+- **PlaceholderAPI 支持**：注册 `metroaltroutes` 扩展，暴露线路状态、统计、调度等 17 个占位符
 
 #### 优化
 - **替代路线查询**：从 `RouteCache` 迁移至 `LineDataManager`，支持按优先级排序
@@ -28,6 +29,7 @@
 - **`clearaltroute [altId]` single removal**: Remove a specific alternate route by ID instead of clearing all
 - **`LineDataManager`**: New data management layer for alt-route priorities, auto-recovery, schedules, and statistics
 - **Periodic scheduler**: Checks auto-recovery expiry and maintenance window transitions every 60 seconds
+- **PlaceholderAPI support**: Registers `metroaltroutes` expansion with 17 placeholders for line status, stats, schedules, etc.
 
 #### Improved
 - **Alt-route queries**: Migrated from `RouteCache` to `LineDataManager` with priority-based sorting

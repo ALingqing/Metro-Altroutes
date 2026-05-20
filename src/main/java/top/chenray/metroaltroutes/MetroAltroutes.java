@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.cubexmc.metro.api.MetroAPI;
 import top.chenray.metroaltroutes.cache.RouteCache;
 import top.chenray.metroaltroutes.commands.LineCommand;
+import top.chenray.metroaltroutes.hooks.PlaceholderHook;
 import top.chenray.metroaltroutes.listeners.BoardingListener;
 
 import java.util.Objects;
@@ -56,6 +57,12 @@ public final class MetroAltroutes extends JavaPlugin {
 
         // 注册事件监听器
         getServer().getPluginManager().registerEvents(new BoardingListener(this), this);
+
+        // 注册 PlaceholderAPI 扩展（如果存在）
+        if (getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholderHook(this).register();
+            getLogger().info("PlaceholderAPI 扩展已注册。");
+        }
 
         getLogger().info("metro-altroutes 已启用！使用 /m line 管理线路运营状态。");
     }
